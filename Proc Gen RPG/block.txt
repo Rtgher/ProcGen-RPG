@@ -1,0 +1,299 @@
+#Classes:
+
+class Actor:
+    """
+    #Actor class for all Actors within the game;
+    # Is superclass
+    """
+    def __init__(self, Name, level) :
+        self.Name=Name
+        self.level=level
+        self.action_list= []
+        self.status_list=[]
+        
+    def getLevel(self):
+        return self.level
+    
+    #Get Name
+    def getName(self):
+        return self.Name
+    
+    #Add/Get Attack
+    def defAttack(self, Attack) :
+        self.Attack=Attack
+    def getAttack(self) :
+        return self.Attack
+    
+    #Add/Remove/Get Action:
+    def addAction(self, Action):
+        self.action_list.append(Action)
+    def removeAction(self,Action):
+        self.action_list.remove(Action)
+    def getAction(self):
+        return self.action_list
+        
+    #Add and get status effect list
+    def addStatus(self, status):
+        self.status_list.append(status)
+    def removeStatus(self, status):
+        self.status_list.remove(status)
+    def getStatus(self):
+        return self.status
+    
+#####END CLASS
+        
+class Player(Actor):
+    """This class represents the player
+    It is a subclass of Actor.
+    It has the following Attributes, plus those of Actor class: Inventory, Defence, Attack, Position(x,y),
+    It has the following Methods, plus those of the Actor class: initInventory ; addInventory; removeInventory;
+    printInventory; addAttack;getAttack; addDefence;getDefence; setPosition;getPosition;
+    """
+    def __init__(self, Name, level):
+        Actor.__init__(self, Name, 0)
+        self.Inventory= []
+        self.Attack=1
+        self.Defence=1
+        self.position={'x':0, 'y':0}
+        
+    #add Inventory and relevant Inventory functions:
+    def addInventory(self, item):
+        self.Inventory.append(item)
+    def removeInventory(self, item):
+        self.Inventory.remove(item)
+    def printInventory(self):
+        for item in self.Inventory:
+            print(item,  end=", ")
+            
+    #Add and get Attack
+    def addAttack(self, Attack):
+        self.Attack+=Attack
+    def getAttack(self):
+        return self.Attack
+    
+    #Add and get Defence
+    def addDefence(self,Defence):
+        self.Defence+=Defence
+    def getDefence(self):
+        return self.Defence
+
+    #Add and Get position
+    def setPosition(self,x,y):
+        self.position['x']=x
+        self.position['y']=y
+    def getPosition(self):
+        return (self.position['x'],self.position['y'])
+
+    #Init and Get Pet
+    def setPet(self, pet):
+        self.Pet=pet
+    def getPet(self):
+        return self.Pet
+
+    
+#####END CLASS
+
+class Monster(Actor):
+    """This class is for combatants
+    It is a subclass of Actor.
+    It has the following attributes beside those of Actor:  Attack, Defence, Elemental_aff, Elemental_deff(elements),
+    Health
+    It has the following extra methods:addAttack/getAttack; addDefence/getDefence; set/find/getElemental_aff; 
+    """
+    def __init__(self, Name, level, Attack, Defence):
+       def __init__(self, Name, level):
+            Actor.__init__(self, Name, level)
+        self.Attack=Attack
+        self.Defence=Defence
+        self.Elemental_def={'fire': 0, 'water': 0, 'air': 0, 'earth':0 }
+        self.Health=10
+
+    #Add and get health
+    def addHealth(self, amount):
+        self.Health+=amount
+    def getHealth(self):
+        return self.Health
+
+    #Add and get Attack
+    def addAttack(self, Attack):
+        self.Attack+=Attack
+    def getAttack(self):
+        return self.Attack
+    
+    #Add and get Defence
+    def addDefence(self,Defence):
+        self.Defence+=Defence
+    def getDefence(self):
+        return self.Defence
+
+    #set and get Elemental affinity
+    def findElemental_aff(self):
+        global elements
+        self.Elemental_aff=random(elements)
+        if random(0,10) %2==0:
+            self.Elemental_aff='none'
+    def setElemental_aff(self,element):
+        self.Elemental_aff=element
+    def getElemental_aff(self):
+        return self.Elemental_aff
+    
+   #Add and Get Elemental Resistance         
+    def addElemental_def(self, element, nr):
+        self.Elemental_def[element]+=nr
+    def getElemental_def(self, element):
+        return self.Elemental_def[element]
+
+#####END CLASS
+    
+class Pet(Monster):
+    """This class is for the player's pet
+    Is a subclass of Monster.
+    It has the following extra Attributes: Race, Loyalty
+    It has the following extra methods: getRace; add/getLoyalty;
+    """
+    def __init__(self, Name, level, Attack, Defence):
+        Monster.__init__(Name, level, Attack, Defence)
+        global race
+        self.race=random(race)
+        self.Loyalty=10
+
+    #getRace
+    def getRace(self):
+        return self.race
+
+    #add/get Loyalty
+    def addLoyalty(self, nr):
+        self.Loyalty+=nr
+    def getLoyalty(self):
+        return self.Loyalty
+    
+#####END CLASS
+
+class Action:
+    """This class is for actions that can be performed by actors
+     It is a superclass.
+    """
+    def __init__(self, Name, cost, element):
+        self.Name=Name
+        self.cost=cost
+        self.element=element
+        
+    #set/get Description(Desc)
+    def setDesc(self, text):
+        self.Desc=text
+    def getDesc(self):
+        return self.Desc
+
+    #getName/getCost/getElement
+    def getName(self):
+        return self.Name
+    def getCost(self):
+        return self.cost
+    def getElement(self):
+        return self.element
+
+#####END CLASS
+
+class Magic(Action):
+    """This class is for atk/def magic actions.
+    It is a subclass of Actions
+    It has these extra Atributes: mtype, amount
+    It has these extra methods: cast(self, obj, attribute, amount); 
+    """
+    def __init__(self, Name, cost, element, mtype, nr):
+        Action.__init__(self, Name, cost, element)
+        self.mtype=mtype
+        self.amount=nr
+        
+    #Cast method
+    def cast(self, obj, attribute, amount, **statuses):
+        if self.mtype=='damage' :
+            obj.addHealth(-amount)
+        if self.mtype=='heal':
+            obj.addHealth(amount)
+        obj.addStatus(statuses)
+class Status:
+    """This class is for statuses.
+    It is a class subordinate to Magic, and related to Magic, but does not inherit from it.
+    The magic class can add a status to an obj.
+    """
+    def __init__(self, Name, stype, amount, turn_duration, **Attribute):
+        self.Name=Name
+        self.stype=stype
+        self.amount=amount
+        self.turn_duration=turn_duration
+        self.Attribute=Attribute
+
+    #Set/Get Desc
+    def setDesc(self, text):
+        self.Desc=text
+    def getDesc(self):
+        return self.Desc
+
+    #Get duration
+    def getDuration(self):
+        return self.turn_duration
+
+    #Execute method
+    def Execute(self, obj, attribute):
+        if self.mtype=='damage' :
+            obj.addHealth(-amount)
+        if self.mtype=='heal':
+            obj.addHealth(amount)
+        if self.mtype=='buff':
+            att="add"+self.Attribute
+            obj.att(self.amount)
+            
+#####END CLASS
+
+class Tile :
+    """This class is for game tiles; the equivalent of floors;
+    It is a superclass.
+    To be used in the map creation.
+    It can be passable or not, with the values 'yes' or 'no'
+    """
+    def __init__(self, Name, passability):
+        self.Name=Name
+        self.Passability=passability
+
+    #set/get Graphic
+    def setGraphic(self, icon):
+        self.Graphic=icon
+    def getGraphic(self):
+        return self.Graphic
+
+    #set/get Description
+    def setDesc(self, text):
+        self.Desc=text
+    def getDesc(self):
+        return self.Desc
+    
+#####END CLASS
+
+class EventTile(Tile) :
+    """This class is used for tiles with special events.
+    It is a suclass of Tile.
+    It has the following extra attributes:
+    It has the following extra Methods:
+    """
+    #set Choices
+    def setChoice1(self, text):
+        self.Choice1=text
+    def getChoice1(self):
+        return self.Choice1
+    def setChoice2(self,text):
+        self.Choice2=text
+    def getChoice2(self):
+        return self.Choice2
+    def setChoice3(self,text):
+        self.Choice3=text
+    def getChoice3(self):
+        return self.Choice3
+
+    #set/get Reward
+    def setReward(self, amount):
+        self.Reward=amount
+    def getReward(self):
+        return self.Reward
+
+#####END CLASS
